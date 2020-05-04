@@ -23,8 +23,14 @@ function init(){
             let l = document.createElement("div");
             l.className="bar";
             l.style.width=Math.random()*100;
+            l.style.background = getColor(i);
             node.append(l);
         }
         element.appendChild(node);
     }
+}
+function getColor(i){
+    let color= `#${parseInt((i*Math.random()*255)%32, 16)%255}${parseInt((i*Math.random())*255%32, 16)%255}${parseInt((i*Math.random())*255%32, 16)}`;
+    console.log(color);
+    return color;
 }
