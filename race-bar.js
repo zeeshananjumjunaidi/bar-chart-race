@@ -20,6 +20,8 @@ function sleep(miliseconds) {
     while (currentTime + miliseconds >= new Date().getTime()) {
     }
 }
+
+sortable_bars=[];
 async function init() {
     let graphs = document.getElementsByClassName('race-bar');
     let graphs_items = [];
@@ -47,7 +49,8 @@ async function init() {
 
     for (let item of graphs_items) {
         let safe_counter = 10000;
-        for (let graph of item.childNodes) {
+        for (let graph of item.childNodes) {            
+            sortable_bars=graph.children;
             for (let i = 0; i < graph.children.length; i++) {
                 let ele = graph.children[i];
                 let maxVal = parseInt(ele.getAttribute("max-value"));
@@ -104,9 +107,21 @@ function swap(el1, el2, container) {
 
 let framesPerSecond = 90;
 
-
+async function sort(container){
+    console.log("swappoing");
+      for (let j = 0; j < sortable_bars.length; j++) {
+                for (let k = 0; k < sortable_bars.length; k++) {
+                    let ele1 = sortable_bars[j];
+                    let ele2 = sortable_bars[k];
+                    let width1 = parseInt(ele1.getAttribute("size"));
+                    let width2 = parseInt(ele2.getAttribute("size"));
+                    if(width1<width2){
+                         await swap(ele1,ele2,container);
+                }
+            }
+        }
+}
 async function animateLifespan(ele) {
-
     return new Promise(async (resolve) => {
         let width = parseInt(ele.getAttribute("size"));
         let maxVal = parseInt(ele.getAttribute("max-value"));
@@ -122,7 +137,7 @@ async function animateLifespan(ele) {
                     }
                     ele.setAttribute("size", width);
                     ele.style.width = width;
-                    ele.innerText = `${width}/${maxVal}`
+                    ele.innerText = `${width}/${maxVal}`;                  
                     if (width == maxVal) {
                         console.log("Stopping ", tId);
                         running = false;
@@ -135,7 +150,14 @@ async function animateLifespan(ele) {
                 }, 1000 / framesPerSecond);
             }
         }
-        f();
+        let s =async function sortAnim(){
+            if(running){                
+                requestAnimationFrame(sortAnim);
+                await sort(ele.parentNode);
+            }
+        }
 
+        f();
+        s();
     });
 }
