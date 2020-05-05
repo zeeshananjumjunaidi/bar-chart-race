@@ -1,5 +1,10 @@
 .bar{
-    height:30px;
+    height:20px;
     width:40px;
-    border:1px solid black;
+    padding: 2px;
+    text-align: end;
+    white-space: nowrap;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    /* border:1px solid black; */
 }
