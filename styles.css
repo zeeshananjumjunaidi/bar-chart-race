@@ -17,3 +17,11 @@
     color:#fff;    
     position: relative;
 }
+.label-inside{
+    background:#333;
+}
+.label-outside{
+    position: absolute;
+    color:#333;
+    margin:0px 5px;
+}

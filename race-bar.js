@@ -33,7 +33,7 @@ async function init() {
             l.className = "bar";
             let width = 0;// ((Math.random() * 100 * SCALE) + 100);
             l.style.width = width;
-            l.style.top = i*20;
+            l.style.top = i*24;
             l.setAttribute("size", width);
             l.setAttribute("name", getName(4));
 
@@ -189,7 +189,7 @@ async function animateLifespan(ele) {
                     }
                     ele.setAttribute("size", width);
                     ele.style.width = width;
-                    ele.innerHTML = `<strong>${name} ▶</strong>: ${width}/${maxVal}`;
+                    ele.innerHTML = `<strong class="label-inside">${name} ▶</strong> <span  class="label-outside">${width}/${maxVal}</span>`;
                     if (width == maxVal) {
                         console.log("Stopping ", tId);
                         running = false;
