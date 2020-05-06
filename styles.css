@@ -6,5 +6,14 @@
     white-space: nowrap;
     border-right: 1px solid black;
     border-left: 1px solid black;
+    position: absolute;
+    top:0px;
+    left:0px;
+    background-color: green;
     /* border:1px solid black; */
+}
+.race-bar{
+    padding:10px;
+    color:#fff;    
+    position: relative;
 }
