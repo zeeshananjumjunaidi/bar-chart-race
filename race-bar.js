@@ -41,7 +41,7 @@ async function init() {
             let text = document.createTextNode((i + 1) + "# Node");
             l.appendChild(text);
 
-            let randomMaxValue = (Math.random() * 100 * SCALE) + 100;
+            let randomMaxValue =(i*10)+ ((0.1+Math.random()) * 100);// * SCALE) + 100;
             l.setAttribute("max-value", randomMaxValue);
             node.append(l);
         }
@@ -189,7 +189,7 @@ async function animateLifespan(ele) {
                     }
                     ele.setAttribute("size", width);
                     ele.style.width = width;
-                    ele.innerHTML = `<strong class="label-inside">${name} ▶</strong> <span  class="label-outside">${width}/${maxVal}</span>`;
+                    ele.innerHTML = `<span class="label-inside">${name} ▶</span> <span  class="label-outside">${width}/${maxVal}</span>`;
                     if (width == maxVal) {
                         console.log("Stopping ", tId);
                         running = false;
