@@ -1,3 +1,4 @@
+
 function docReady(fn) {
     // see if DOM is already available
     if (document.readyState === "complete" || document.readyState === "interactive") {
@@ -23,17 +24,54 @@ function sleep(miliseconds) {
 
 sortable_bars = [];
 async function init() {
+    let numberOfbars= 20;
+    let barHeight=24;
+
     let graphs = document.getElementsByClassName('race-bar');
     let graphs_items = [];
     for (let graph of graphs) {
         let node = document.createElement("div");
+        node.style.position='absolute';
+        let background = document.createElement('div');
+        background.style.height=numberOfbars*barHeight;
+        background.className='race-bar-background';
+ 
+        //top ticks
+        for(let i=0;i<numberOfbars;i++){            
+            let line = document.createElement("div");
+            line.className='top-tick';
+             line.style.left = i * barHeight;
+            background.appendChild(line);
+        }
+        //left ticks
+        for(let i=0;i<numberOfbars;i++){            
+            let line = document.createElement("div");
+            line.className='left-tick';
+             line.style.top = i * barHeight;
+            background.appendChild(line);
+        }
 
-        for (i = 0; i < 15; i++) {
+        for(let i=0;i<numberOfbars;i++){            
+        let line = document.createElement("div");
+        line.className='line-v';
+        line.style.top = i * barHeight;
+        background.appendChild(line);
+        }
+
+        for(let i=0;i<numberOfbars;i++){            
+            let line = document.createElement("div");
+            line.className='line-h';
+            line.style.left = i * barHeight;
+            background.appendChild(line);
+        }
+
+        graph.appendChild(background);
+        for (let i = 0; i < numberOfbars; i++) {
             let l = document.createElement("div");
             l.className = "bar";
             let width = 0;// ((Math.random() * 100 * SCALE) + 100);
             l.style.width = width;
-            l.style.top = i*24;
+            l.style.top = i*barHeight;
             l.setAttribute("size", width);
             l.setAttribute("name", getName(4));
 
@@ -45,17 +83,19 @@ async function init() {
             l.setAttribute("max-value", randomMaxValue);
             node.append(l);
         }
+        node.setAttribute('data',true);
         graph.appendChild(node);
         graphs_items.push(graph);
     }
 
     for (let item of graphs_items) {
-        let safe_counter = 10000;
         for (let graph of item.childNodes) {
+            let dt = graph.getAttribute('data');
+            if(!dt){continue;}
             sortable_bars = graph.children;
-            for (let i = 0; i < graph.children.length; i++) {
-                let ele = graph.children[i];
-                animateLifespan(ele);
+            for (let i = 0; i < graph.children.length; i++) { 
+                let ele = graph.children[i];               
+                animateLifespan(ele,graph.children);                
             }
         }
     }
@@ -75,77 +115,7 @@ function getColor() {
     let firstColor = colorValue1.toString(16);
     let secondColor = colorValue2.toString(16);
     let gradient = `linear-gradient(to left,#${firstColor},#${secondColor})`;
-    //  console.debug(gradient);
     return gradient;
-}
-
-
-async function bubbleSort(delay = 100) {
-    if (delay && typeof delay !== "number") {
-      alert("sort: First argument must be a typeof Number");
-      return;
-    }
-    let blocks = document.querySelectorAll(".bar");
-    for (let i = 0; i < blocks.length - 1; i += 1) {
-      for (let j = 0; j < blocks.length - i - 1; j += 1) {  
-        await new Promise(resolve =>
-          setTimeout(() => {
-            resolve();
-          }, delay)
-        );
-  
-        const value1 = Number(blocks[j].getAttribute('size'));//.childNodes[0].innerHTML);
-        const value2 = Number(blocks[j + 1].getAttribute('size'));//.childNodes[0].innerHTML);
-  
-        if (value1 > value2) {
-          await swap(blocks[j], blocks[j + 1]);
-          blocks = document.querySelectorAll(".bar");
-        }
-  
-        blocks[j].style.backgroundColor = "#58B7FF";
-        blocks[j + 1].style.backgroundColor = "#58B7FF";
-      }
-  
-      blocks[blocks.length - i - 1].style.backgroundColor = "#13CE66";
-    }
-  }
-
-
-
-
-async function temp(ele1,ele2){
-   let f1 = ele1.style.top;
-   let f2 = ele2.style.top;
-   let width1 = ele1.getAttribute('size');
-   let width2 = ele2.getAttribute('size');
-
-   let animationLength = 1000;   
-   ele1.style.transition = `top ${animationLength}ms`;
-   ele2.style.transition = `top ${animationLength}ms`;  
-   ele1.style.top =f2;//
-   ele2.style.top =f1;// 
- 
-}
-
-function swap(el1, el2, container) {
-    return new Promise(resolve => {
-        const style1 = window.getComputedStyle(el1);
-        const style2 = window.getComputedStyle(el2);
-
-        const transform1 = style1.getPropertyValue("transform");
-        const transform2 = style2.getPropertyValue("transform");
-
-        el1.style.transform = transform2;
-        el2.style.transform = transform1;
-
-        // Wait for the transition to end!
-        window.requestAnimationFrame(function () {
-            setTimeout(() => {
-                container.insertBefore(el2, el1);
-                resolve();
-            }, 5);
-        });
-    });
 }
 
 
@@ -156,31 +126,65 @@ async function sort() {
     for (let elment of elements) {
         console.log(elements);
         console.log("sorting");
-        for (let box of elment.children) {
-            for (let ele1 of box.children) {
-                let name1 = ele1.getAttribute("name");
-                for (let ele2 of box.children) {
-                    let name2 = ele2.getAttribute("name");
-                    let width1 = parseInt(ele1.getAttribute("size"));
-                    let width2 = parseInt(ele2.getAttribute("size"));
-                    if (width1 < width2) {
-                        console.log("Swapping", name1, name2, width1, width2);
-                        await temp(ele1, ele2);
-                    }
-                }
-            }
+        for (let box of elment.children){
+        insertionSort(box.children);
         }
     }
 }
-async function animateLifespan(ele) {
-    return new Promise(async (resolve) => {
+
+
+async function insertionSort(arr){
+    let beginningIndex = 0;
+    let currentIndex = 1;
+    //while the start of the unsorted portion doesnt not start at the after the end of the array
+    while(currentIndex < arr.length){
+        //while the currentIndex does not reach the end of the sorted section or the array (index of -1)
+        while(currentIndex > 0){
+            let ele1 = arr[currentIndex];
+            let ele2 = arr[currentIndex - 1];
+            //get currentValue(value to be sorted)
+            let currentVal1 = parseInt(ele1.getAttribute("size"));
+            let currentVal2 = parseInt(ele2.getAttribute("size"));
+            //if it is lesser than the last value, swap the two values, otherwise, break out of the loop
+            if(currentVal1 > currentVal2){
+                await temp(ele1, ele2, arr);
+                currentIndex--;
+            } else{
+                break;
+            }
+        
+        }
+        //add 1 to beginningIndex to account for newly sorted section
+        beginningIndex++;
+        //start sorting from index after beginning
+        currentIndex = beginningIndex + 1;
+
+    }
+    return arr;
+}
+
+async function temp(ele1,ele2){
+    let f1 = ele1.style.top;
+    let f2 = ele2.style.top;
+ 
+    let animationLength = 1000;   
+    ele1.style.transition = `top ${animationLength}ms`;
+    ele2.style.transition = `top ${animationLength}ms`;  
+    ele1.style.top =f2;
+    ele2.style.top =f1;
+    ele2.parentNode.insertBefore(ele1,ele2);
+}
+
+
+async function animateLifespan(ele,allelements) {
+    return new Promise((resolve) => {
         let width = parseInt(ele.getAttribute("size"));
         let maxVal = parseInt(ele.getAttribute("max-value"));
         let name = ele.getAttribute("name");
         let running = true;
-        let f = function animate() {
+        let f =async function animate() {
             if (running) {
-                let tId = setTimeout(function () {
+                let tId = setTimeout(async function () {
                     requestAnimationFrame(animate);
                     if (width < maxVal) {
                         width++;
@@ -194,42 +198,18 @@ async function animateLifespan(ele) {
                         console.log("Stopping ", tId);
                         running = false;
                         clearTimeout(tId);
+                        
+                        insertionSort(allelements);
                         return resolve();
                     }
+                    
                 }, 1000 / framesPerSecond);
-            }
-        }
-        let s = async function sortAnim() {
-            if (running) {
-                requestAnimationFrame(sortAnim);
-                await sort(ele.parentNode);
-            }
-        }
 
-        f();
-        // s();
+              
+            }
+        }        
+       f();        
+
     });
 
-
-    
-function swap(el1, el2) {
-    return new Promise(resolve => {
-      const style1 = window.getComputedStyle(el1);
-      const style2 = window.getComputedStyle(el2);
-  
-      const transform1 = style1.getPropertyValue("transform");
-      const transform2 = style2.getPropertyValue("transform");
-  
-      el1.style.transform = transform2;
-      el2.style.transform = transform1;
-  
-      // Wait for the transition to end!
-      window.requestAnimationFrame(function() {
-        setTimeout(() => {
-          container.insertBefore(el2, el1);
-          resolve();
-        }, 250);
-      });
-    });
-  }
 }
